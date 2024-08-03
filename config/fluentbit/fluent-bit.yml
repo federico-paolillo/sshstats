@@ -1,0 +1,25 @@
+service:
+  parsers_file: /etc/fluent-bit/parsers.conf
+  log_level: debug
+pipeline:
+  inputs:
+    - name: tail
+      tag: authn.ssh
+      log_level: info
+      path: /var/log/auth.log
+      db: /var/fluentbit/authn_tail.db
+      parser: authlog
+  filters:
+    - name: grep
+      match: authn.ssh
+      regex: $user ^\w+$
+  outputs:
+    - name: loki
+      match: authn.ssh
+      host: logs-prod-012.grafana.net
+      port: 443
+      http_user: ${GRAFANACLOUD_USER}
+      http_passwd: ${GRAFANACLOUD_PASSWD}
+      labels: job=ssh-authn,node=${NODENAME}
+      tls: on
+      tls.verify: on
