@@ -1,4 +1,4 @@
-package attackers
+package stats
 
 type Attacker struct {
 	IP       string
