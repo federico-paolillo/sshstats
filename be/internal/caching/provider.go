@@ -2,6 +2,7 @@ package caching
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/federico-paolillo/ssh-attempts/pkg/stats"
@@ -14,12 +15,13 @@ const cleanInterval = 12 * time.Hour
 type Provider struct {
 	cache    *cache.Cache
 	provider stats.Provider
+	log      *log.Logger
 }
 
-func NewProvider(provider stats.Provider) *Provider {
+func NewProvider(log *log.Logger, provider stats.Provider) *Provider {
 	cache := cache.New(defaultExpiry, cleanInterval)
 
-	return &Provider{cache, provider}
+	return &Provider{cache, provider, log}
 }
 
 func (p *Provider) Top15LoginAttempts(nodeName string) (stats.Attempts, error) {
@@ -29,9 +31,13 @@ func (p *Provider) Top15LoginAttempts(nodeName string) (stats.Attempts, error) {
 
 	if found {
 		if attempsInCache, ok := maybeAttempsInCache.(stats.Attempts); ok {
+			log.Printf("hitting cache for node '%s'. cache key %s", nodeName, cacheKey)
+
 			return attempsInCache, nil
 		}
 	}
+
+	log.Printf("refreshing cache for node '%s'. cache key %s", nodeName, cacheKey)
 
 	attempts, err := p.provider.Top15LoginAttempts(nodeName)
 
