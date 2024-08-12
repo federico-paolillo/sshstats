@@ -13,7 +13,7 @@ type LogcliConnector struct {
 	client client.Client
 }
 
-func NewLokiConnector(client client.Client) *LogcliConnector {
+func NewLogcliConnector(client client.Client) *LogcliConnector {
 	return &LogcliConnector{client}
 }
 
