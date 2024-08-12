@@ -4,28 +4,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/grafana/loki/v3/pkg/logproto"
 	"github.com/grafana/loki/v3/pkg/logcli/client"
 	"github.com/grafana/loki/v3/pkg/loghttp"
-	"github.com/prometheus/common/model"
+	"github.com/grafana/loki/v3/pkg/logproto"
 )
 
-type Connector interface {
-	Query() (loghttp.Vector, error)
-}
-
-type Labels = map[string]string
-
-type RawSample struct {
-	labels Labels
-	value  float64
-}
-
-type connector struct {
+type LogcliConnector struct {
 	client client.Client
 }
 
-func (c *connector) MetricQuery(logql string) ([]RawSample, error) {
+func NewLokiConnector(client client.Client) *LogcliConnector {
+	return &LogcliConnector{client}
+}
+
+func (c *LogcliConnector) MetricQuery(logql string) ([]*RawSample, error) {
 	resp, err := c.client.Query(
 		logql,
 		100,
@@ -59,15 +51,4 @@ func (c *connector) MetricQuery(logql string) ([]RawSample, error) {
 	return rawSamples, nil
 }
 
-func mapPrometheusSampleToOurs(promSample model.Sample) *RawSample {
-	labels := make(Labels, 0)
-
-	for k, v := range promSample.Metric {
-		labels[string(k)] = string(v)
-	}
-
-	return &RawSample{
-		labels: labels,
-		value:  float64(promSample.Value),
-	}
-}
+var _ Connector = (*LogcliConnector)(nil)
