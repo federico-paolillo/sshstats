@@ -42,10 +42,10 @@ func (c *LogcliConnector) MetricQuery(logql string) ([]*RawSample, error) {
 
 	querySamplesRetrieved := resp.Data.Result.(loghttp.Vector)
 
-	rawSamples := make([]RawSample, 0, len(querySamplesRetrieved))
+	rawSamples := make([]*RawSample, 0, len(querySamplesRetrieved))
 
 	for _, querySample := range querySamplesRetrieved {
-		rawSamples = append(rawSamples, *mapPrometheusSampleToOurs(querySample))
+		rawSamples = append(rawSamples, mapPrometheusSampleToOurs(querySample))
 	}
 
 	return rawSamples, nil
