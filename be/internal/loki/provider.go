@@ -2,6 +2,7 @@ package loki
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/federico-paolillo/ssh-attempts/pkg/stats"
 )
@@ -40,6 +41,12 @@ func (p *Provider) Top15LoginAttempts(nodeName string) (stats.Attempts, error) {
 
 		result = append(result, loginAttempt)
 	}
+
+	slices.SortFunc(
+		result,
+		func(a *stats.LoginAttempt, b *stats.LoginAttempt) int {
+			return a.Count - b.Count
+		})
 
 	return result, nil
 }
