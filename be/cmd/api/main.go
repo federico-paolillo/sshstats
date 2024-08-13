@@ -46,6 +46,20 @@ func initViper() (*viper.Viper, error) {
 	return viperInstance, nil
 }
 
+func initGin(app *app.App) *gin.Engine {
+	g := gin.New()
+
+	g.Use(gin.Recovery())
+	g.Use(middlewares.Logger(app))
+	g.Use(middlewares.Auth(app))
+
+	handlers.RegisterRoutes(g, app)
+
+	g.SetTrustedProxies(nil)
+
+	return g
+}
+
 func run() StatusCode {
 	l := log.Default()
 
@@ -73,15 +87,7 @@ func run() StatusCode {
 
 	l.Printf("main: setup complete")
 
-	g := gin.New()
-
-	g.Use(gin.Recovery())
-	g.Use(middlewares.Logger(app))
-	g.Use(middlewares.Auth(app))
-
-	handlers.RegisterRoutes(g, app)
-
-	g.SetTrustedProxies(nil)
+	g := initGin(app)
 
 	l.Printf("main: running")
 
