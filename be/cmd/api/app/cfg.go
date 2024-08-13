@@ -12,7 +12,6 @@ type AuthSettings struct {
 }
 
 type ServerSettings struct {
-	Port    int
 	Address string
 }
 

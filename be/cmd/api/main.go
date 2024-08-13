@@ -1,9 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/app"
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/handlers"
@@ -33,9 +37,12 @@ func initViper() (*viper.Viper, error) {
 	viperInstance.AddConfigPath(".")
 	viperInstance.AddConfigPath("/etc/sshstats")
 
+	viperInstance.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viperInstance.SetEnvPrefix("SSHSTATS")
 	viperInstance.AllowEmptyEnv(false)
 	viperInstance.AutomaticEnv()
+
+	viperInstance.SetDefault("server.address", ":65535")
 
 	err := viperInstance.ReadInConfig()
 
@@ -46,7 +53,7 @@ func initViper() (*viper.Viper, error) {
 	return viperInstance, nil
 }
 
-func initGin(app *app.App) *gin.Engine {
+func initServer(app *app.App) *http.Server {
 	g := gin.New()
 
 	g.Use(gin.Recovery())
@@ -57,7 +64,14 @@ func initGin(app *app.App) *gin.Engine {
 
 	g.SetTrustedProxies(nil)
 
-	return g
+	s := &http.Server{
+		Addr:         app.Cfg.Server.Address,
+		ReadTimeout:  500 * time.Millisecond,
+		WriteTimeout: 1 * time.Second,
+		Handler:      g,
+	}
+
+	return s
 }
 
 func run() StatusCode {
@@ -83,15 +97,23 @@ func run() StatusCode {
 		return NotOk
 	}
 
+	l.Printf("cfg: %v", cfg.Server)
+
 	app := app.NewApp(l, &cfg)
 
 	l.Printf("main: setup complete")
 
-	g := initGin(app)
+	s := initServer(app)
 
 	l.Printf("main: running")
 
-	g.Run()
+	err = s.ListenAndServe()
 
-	return Ok
+	if errors.Is(err, http.ErrServerClosed) {
+		return Ok
+	}
+
+	l.Printf("main: server closed unexpectedly. %v", err)
+
+	return NotOk
 }
