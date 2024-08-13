@@ -31,14 +31,14 @@ func main() {
 func initViper() (*viper.Viper, error) {
 	viperInstance := viper.New()
 
-	viperInstance.SetConfigName("config")
-	viperInstance.SetConfigType("json")
-
-	viperInstance.AddConfigPath(".")
-	viperInstance.AddConfigPath("/etc/sshstats")
-
 	viperInstance.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viperInstance.SetEnvPrefix("SSHSTATS")
+
+	viperInstance.SetConfigName(".env")
+	viperInstance.SetConfigType("dotenv")
+
+	viperInstance.AddConfigPath(".")
+
 	viperInstance.AllowEmptyEnv(false)
 	viperInstance.AutomaticEnv()
 
@@ -96,8 +96,6 @@ func run() StatusCode {
 		l.Printf("main: could not unmarshal configuration. %v", err)
 		return NotOk
 	}
-
-	l.Printf("cfg: %v", cfg.Server)
 
 	app := app.NewApp(l, &cfg)
 
