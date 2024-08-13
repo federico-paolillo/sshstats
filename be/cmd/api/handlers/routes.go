@@ -13,5 +13,5 @@ func RegisterRoutes(
 }
 
 func registerStatRoutes(gin *gin.Engine, app *app.App) {
-	gin.GET("/stats", getTop15LoginAttempts(app))
+	gin.GET("/stats/:nodename", getTop15LoginAttempts(app))
 }

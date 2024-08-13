@@ -7,6 +7,7 @@ import (
 
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/app"
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/handlers"
+	"github.com/federico-paolillo/ssh-attempts/cmd/api/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -26,6 +27,11 @@ func main() {
 func initViper() (*viper.Viper, error) {
 	viperInstance := viper.New()
 
+	viperInstance.SetConfigName("config")
+	viperInstance.SetConfigType("json")
+
+	viperInstance.AddConfigPath(".")
+
 	viperInstance.SetEnvPrefix("RSFLLO")
 	viperInstance.AllowEmptyEnv(false)
 	viperInstance.AutomaticEnv()
@@ -33,19 +39,19 @@ func initViper() (*viper.Viper, error) {
 	err := viperInstance.ReadInConfig()
 
 	if err != nil {
-		return nil, fmt.Errorf("main: could not read configuration. %v", err)
+		return nil, fmt.Errorf("main: could not read config. file. %w", err)
 	}
 
 	return viperInstance, nil
 }
 
 func run() StatusCode {
-	log := log.Default()
+	l := log.Default()
 
 	viper, err := initViper()
 
 	if err != nil {
-		log.Printf("main: could not init configuration. %w", err)
+		l.Printf("main: could not unmarshal configuration. %v", err)
 		return NotOk
 	}
 
@@ -54,17 +60,25 @@ func run() StatusCode {
 	err = viper.Unmarshal(&cfg)
 
 	if err != nil {
-		log.Printf("main: could not unmarshal configuration. %w", err)
+		l.Printf("main: could not unmarshal configuration. %v", err)
 		return NotOk
 	}
 
-	app := app.NewApp(log, &cfg)
+	app := app.NewApp(l, &cfg)
 
-	log.Printf("main: up setup")
+	l.Printf("main: setup complete")
 
-	gin := gin.Default()
+	g := gin.New()
 
-	handlers.RegisterRoutes(gin, app)
+	g.Use(gin.Recovery())
+	g.Use(middlewares.Logger(app))
+	g.Use(middlewares.Auth(app))
+
+	handlers.RegisterRoutes(g, app)
+
+	l.Printf("main: running")
+
+	g.Run()
 
 	return Ok
 }

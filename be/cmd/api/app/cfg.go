@@ -1,9 +1,23 @@
 package app
 
-import "github.com/federico-paolillo/ssh-attempts/internal/loki"
+type LokiSettings struct {
+	Endpoint string
+	Username string
+	Password string
+}
 
-type Config struct {
+type AuthSettings struct {
+	HeaderKey   string
+	HeaderValue string
+}
+
+type ServerSettings struct {
 	Port    int
 	Address string
-	Loki    *loki.Config
+}
+
+type Config struct {
+	Server *ServerSettings
+	Loki   *LokiSettings
+	Auth   *AuthSettings
 }

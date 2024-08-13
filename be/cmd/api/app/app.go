@@ -34,7 +34,11 @@ func initStatProvider(app *App) {
 		loki.NewProvider(
 			app.Log,
 			loki.NewLogcliConnector(
-				loki.NewClient(app.Cfg.Loki),
+				loki.NewClient(&loki.Config{
+					User:     app.Cfg.Loki.Username,
+					Password: app.Cfg.Loki.Password,
+					Endpoint: app.Cfg.Loki.Endpoint,
+				}),
 			),
 		),
 	)
