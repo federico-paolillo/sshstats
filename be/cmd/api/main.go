@@ -49,16 +49,20 @@ func initViper() (*viper.Viper, error) {
 func run() StatusCode {
 	l := log.Default()
 
-	viper, err := initViper()
+	v, err := initViper()
 
 	if err != nil {
-		l.Printf("main: could not unmarshal configuration. %v", err)
-		return NotOk
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			l.Printf("main: no config file was found. proceeding anyway")
+		} else {
+			l.Printf("main: could not read configuration. %v", err)
+			return NotOk
+		}
 	}
 
 	var cfg app.Config
 
-	err = viper.Unmarshal(&cfg)
+	err = v.Unmarshal(&cfg)
 
 	if err != nil {
 		l.Printf("main: could not unmarshal configuration. %v", err)
