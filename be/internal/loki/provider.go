@@ -51,7 +51,7 @@ func (p *Provider) Top15LoginAttempts(nodeName string) (stats.Attempts, error) {
 	slices.SortFunc(
 		result,
 		func(a *stats.LoginAttempt, b *stats.LoginAttempt) int {
-			return a.Count - b.Count
+			return b.Count - a.Count
 		})
 
 	return result, nil
