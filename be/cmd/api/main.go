@@ -105,7 +105,7 @@ func run() StatusCode {
 
 	s := initServer(app)
 
-	l.Printf("main: running")
+	l.Printf("main: listening on %s", s.Addr)
 
 	err = s.ListenAndServe()
 
