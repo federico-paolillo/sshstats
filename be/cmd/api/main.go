@@ -31,8 +31,9 @@ func initViper() (*viper.Viper, error) {
 	viperInstance.SetConfigType("json")
 
 	viperInstance.AddConfigPath(".")
+	viperInstance.AddConfigPath("/etc/sshstats")
 
-	viperInstance.SetEnvPrefix("RSFLLO")
+	viperInstance.SetEnvPrefix("SSHSTATS")
 	viperInstance.AllowEmptyEnv(false)
 	viperInstance.AutomaticEnv()
 
@@ -75,6 +76,8 @@ func run() StatusCode {
 	g.Use(middlewares.Auth(app))
 
 	handlers.RegisterRoutes(g, app)
+
+	g.SetTrustedProxies(nil)
 
 	l.Printf("main: running")
 
