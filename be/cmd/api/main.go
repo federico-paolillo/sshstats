@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -47,7 +46,7 @@ func initViper() (*viper.Viper, error) {
 	err := viperInstance.ReadInConfig()
 
 	if err != nil {
-		return nil, fmt.Errorf("main: could not read config. file. %w", err)
+		return nil, err
 	}
 
 	return viperInstance, nil
