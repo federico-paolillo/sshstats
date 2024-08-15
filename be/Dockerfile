@@ -37,7 +37,13 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
+RUN mkdir /etc/sshstats 
+
 USER appuser
+
+# An empty config file is required to keep Viper happy
+# See https://github.com/spf13/viper/issues/188#issuecomment-413368673
+COPY config.example /etc/sshstats/config
 
 COPY --from=build /bin/server /bin/
 

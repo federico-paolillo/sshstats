@@ -28,28 +28,44 @@ func main() {
 }
 
 func initViper() (*viper.Viper, error) {
-	viperInstance := viper.New()
+	v := viper.New()
 
-	viperInstance.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viperInstance.SetEnvPrefix("SSHSTATS")
+	v.SetConfigName("config")
+	v.SetConfigType("dotenv")
 
-	viperInstance.SetConfigName(".env")
-	viperInstance.SetConfigType("dotenv")
+	v.AddConfigPath(".")
+	v.AddConfigPath("/etc/sshstats")
 
-	viperInstance.AddConfigPath(".")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.SetEnvPrefix("SSHSTATS")
+	v.AllowEmptyEnv(false)
+	v.AutomaticEnv()
 
-	viperInstance.AllowEmptyEnv(false)
-	viperInstance.AutomaticEnv()
+	v.SetDefault("server.address", ":65535")
 
-	viperInstance.SetDefault("server.address", ":65535")
+	v.SetDefault("auth.headerkey", "")
+	v.SetDefault("auth.headervalue", "")
 
-	err := viperInstance.ReadInConfig()
+	v.SetDefault("loki.username", "")
+	v.SetDefault("loki.password", "")
+	v.SetDefault("loki.endpoint", "")
+
+	v.BindEnv("server.address")
+
+	v.BindEnv("auth.headerkey")
+	v.BindEnv("auth.headervalue")
+
+	v.BindEnv("loki.username")
+	v.BindEnv("loki.password")
+	v.BindEnv("loki.endpoint")
+
+	err := v.ReadInConfig()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return viperInstance, nil
+	return v, nil
 }
 
 func initServer(app *app.App) *http.Server {
@@ -87,16 +103,22 @@ func run() StatusCode {
 		}
 	}
 
-	var cfg app.Config
-
-	err = v.Unmarshal(&cfg)
-
-	if err != nil {
-		l.Printf("main: could not unmarshal configuration. %v", err)
-		return NotOk
+	cfg := &app.Config{
+		Loki: app.LokiSettings{
+			Endpoint: v.GetString("loki.endpoint"),
+			Username: v.GetString("loki.username"),
+			Password: v.GetString("loki.password"),
+		},
+		Server: app.ServerSettings{
+			Address: v.GetString("server.address"),
+		},
+		Auth: app.AuthSettings{
+			HeaderKey:   v.GetString("auth.headerkey"),
+			HeaderValue: v.GetString("auth.headervalue"),
+		},
 	}
 
-	app := app.NewApp(l, &cfg)
+	app := app.NewApp(l, cfg)
 
 	l.Printf("main: setup complete")
 

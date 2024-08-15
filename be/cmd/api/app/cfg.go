@@ -16,7 +16,7 @@ type ServerSettings struct {
 }
 
 type Config struct {
-	Server *ServerSettings
-	Loki   *LokiSettings
-	Auth   *AuthSettings
+	Server ServerSettings
+	Loki   LokiSettings
+	Auth   AuthSettings
 }
