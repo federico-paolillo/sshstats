@@ -4,6 +4,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     apiAuthHeaderKey: "<specify_in_.env>",
-    apiAuthHeaderValue: "<specify_in_.env>"
+    apiAuthHeaderValue: "<specify_in_.env>",
+    apiEndpoint: "<specify_in_.env>",
+    public: {
+      nodenames: [
+        'controlplane-1'
+      ]
+    }
   }
 })
