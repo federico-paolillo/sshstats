@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <main>
+    <h1>ssh-stats</h1>
     <NuxtLayout>
-      <NuxtPage/>
+      <NuxtPage />
     </NuxtLayout>
-  </div>
+  </main>
 </template>
