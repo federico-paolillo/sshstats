@@ -14,13 +14,12 @@ export default defineNuxtConfig({
     }
   },
   runtimeConfig: {
-    apiAuthHeaderKey: "<specify_in_.env>",
-    apiAuthHeaderValue: "<specify_in_.env>",
-    apiEndpoint: "<specify_in_.env>",
     public: {
       nodenames: [
-        'controlplane-1'
-      ]
+        'controlplane-1',
+        'missingnode-1'
+      ],
+      baseUrl: "<specify_in_env>"
     }
   }
 })
