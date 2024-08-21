@@ -17,7 +17,6 @@ export default defineNuxtConfig({
     public: {
       nodenames: [
         'controlplane-1',
-        'missingnode-1'
       ],
       baseUrl: "<specify_in_env>"
     }

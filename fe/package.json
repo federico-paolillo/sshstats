@@ -7,10 +7,12 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "data": "serve -l 65000 data/"
   },
   "dependencies": {
     "nuxt": "^3.12.4",
+    "serve": "^14.2.3",
     "vue": "latest"
   }
 }

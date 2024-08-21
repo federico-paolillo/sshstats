@@ -95,3 +95,5 @@ Temporary Items
 **/test-results/
 **/playwright-report/
 **/playwright/.cache/
+
+data/logins/*.json
