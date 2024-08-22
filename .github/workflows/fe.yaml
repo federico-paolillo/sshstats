@@ -44,13 +44,13 @@ jobs:
             fe/data/logins/*.json
       - name: move attempts data
         run: |
-          cp -v -R fe/data/logins ${{github.workspace}}/nginx
+          cp -v -R fe/data/logins ${{github.workspace}}/nginx/logins
       - name: npm ci
-        working-directory: fe/
+        working-directory: ./fe
         run: |
           npm ci
       - name: nuxt generate
-        working-directory: fe/
+        working-directory: ./fe
         run: |
           npm run generate
       - name: store static site
