@@ -18,10 +18,10 @@ jobs:
           for nodename in $SSHSTATS_NODENAMES; do
             echo "Downloading $nodename.json"
             curl -v                                                                   \
-              -H "{{ env.SSHSTATS_API_AUTH_KEY }}: {{ env.SSHSTATS_API_AUTH_VALUE }}" \
+              -H "${{ env.SSHSTATS_API_AUTH_KEY }}: ${{ env.SSHSTATS_API_AUTH_VALUE }}" \
               --output-dir fe/data/logins                                             \
-              -o "$value.json"                                                        \
-              "https://monkfish-app-ss3gb.ondigitalocean.app/stats/$value"
+              -o "$nodename.json"                                                     \
+              "https://monkfish-app-ss3gb.ondigitalocean.app/stats/$nodename"
           done
       - name: store
         uses: actions/upload-artifact@v4
