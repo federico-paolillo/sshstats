@@ -15,9 +15,6 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      nodenames: [
-        'controlplane-1',
-      ],
       baseUrl: "<specify_in_env>"
     }
   }

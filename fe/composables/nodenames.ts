@@ -1,5 +1,5 @@
-export function useNodenames(): string[] {
-  const cfg = useRuntimeConfig()
+import nodenames from "~/assets/nodenames.json"
 
-  return cfg.public.nodenames ?? []
+export function useNodenames(): string[] {
+  return nodenames ?? [];
 }
