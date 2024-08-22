@@ -5,9 +5,6 @@ on:
   workflow_dispatch:
 env:
   SSHSTATS_BACKEND: https://monkfish-app-ss3gb.ondigitalocean.app
-defaults:
-  run:
-    working-directory: fe/
 jobs:
   generate-website:
     runs-on: ubuntu-22.04
@@ -21,9 +18,13 @@ jobs:
     steps:
       - name: checkout frontend repo
         uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.6.0"
       - name: unpack
         run: |
-          SSHSTATS_NODENAMES=$(jq -r '.[]' assets/nodenames.json | tr '\n' ' ')
+          SSHSTATS_NODENAMES=$(jq -r '.[]' fe/assets/nodenames.json | tr '\n' ' ')
           echo "SSHSTATS_NODENAMES=$SSHSTATS_NODENAMES" >> "$GITHUB_ENV"
       - name: download attempts data
         run: |
@@ -31,7 +32,7 @@ jobs:
             echo "Downloading $nodename.json"
             curl -v                                                                             \
               -H "${{ secrets.SSHSTATS_API_AUTH_KEY }}: ${{ secrets.SSHSTATS_API_AUTH_VALUE }}" \
-              --output-dir data/logins                                                          \
+              --output-dir fe/data/logins                                                       \
               -o "$nodename.json"                                                               \
               "${{ env.SSHSTATS_BACKEND }}/stats/$nodename"
           done
@@ -40,8 +41,16 @@ jobs:
         with:
           name: attempts-data
           path: |
-            data/logins/*.json
+            fe/data/logins/*.json
+      - name: move attempts data
+        run: |
+          cp -v -R fe/data/logins ${{github.workspace}}/nginx
+      - name: npm ci
+        working-directory: fe/
+        run: |
+          npm ci
       - name: nuxt generate
+        working-directory: fe/
         run: |
           npm run generate
       - name: store static site
