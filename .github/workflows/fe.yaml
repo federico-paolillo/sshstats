@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22.6.0"
-      - name: unpack
+      - name: unpack nodenames
         run: |
           SSHSTATS_NODENAMES=$(jq -r '.[]' fe/assets/nodenames.json | tr '\n' ' ')
           echo "SSHSTATS_NODENAMES=$SSHSTATS_NODENAMES" >> "$GITHUB_ENV"
@@ -48,20 +48,13 @@ jobs:
           mkdir -p ${{github.workspace}}/nginx
           cp -v -R --parents logins ${{github.workspace}}/nginx
         working-directory: ./fe/data
+      - name: configure nuxt
+        run: |
+          echo "NUXT_PUBLIC_BASE_URL=${{ env.SSHSTATS_NUXT_PUBLIC_BASE_URL }}" >> fe/.env
       - name: npm ci
         working-directory: ./fe
         run: |
           npm ci
-      - name: configure nuxt
-        working-directory: ./fe
-        run: |
-          echo "NUXT_PUBLIC_BASE_URL=${{ env.SSHSTATS_NUXT_PUBLIC_BASE_URL }}" >> .env
-      - name: store nuxt cfg
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuxt-cfg
-          path: |
-            fe/.env
       - name: nuxt generate
         working-directory: ./fe
         run: |
@@ -71,4 +64,4 @@ jobs:
         with:
           name: ssg-data
           path: |
-            .output/public
+            fe/.output/public/
