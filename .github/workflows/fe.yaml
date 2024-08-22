@@ -46,8 +46,9 @@ jobs:
       - name: move attempts data
         working-directory: ./fe/data
         run: |
-          mkdir -p ${{github.workspace}}/nginx
-          cp -v -R --parents logins ${{github.workspace}}/nginx
+          ls -l ${{github.workspace}}/nginx 
+          mkdir -p ${{github.workspace}}/nginx/login
+          cp -v -R logins ${{github.workspace}}/nginx/login
       - name: try attempts data
         run: |
           curl -v http://localhost:65000/logins/controlplane-1.json
