@@ -44,6 +44,7 @@ jobs:
             fe/data/logins/*.json
       - name: move attempts data
         run: |
+          mkdir -p ${{github.workspace}}/nginx
           cp -v -R --parents logins ${{github.workspace}}/nginx
         working-directory: ./fe/data
       - name: npm ci
