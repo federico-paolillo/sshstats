@@ -13,7 +13,7 @@ jobs:
       data-server:
         image: nginx:1.27.1
         ports:
-          - 80:65000
+          - 65000:80
         volumes:
           - ${{github.workspace}}/nginx:/usr/share/nginx/html
     steps:
