@@ -4,8 +4,8 @@ on:
   #   - cron: "30 4 * * *"
   workflow_dispatch:
 env:
-  SSHSTATS_BACKEND: https://monkfish-app-ss3gb.ondigitalocean.app
-  SSHSTATS_NUXT_PUBLIC_BASE_URL: http://localhost:65000
+  SSHSTATS_BACKEND: "https://monkfish-app-ss3gb.ondigitalocean.app"
+  SSHSTATS_NUXT_PUBLIC_BASE_URL: "http://localhost:65000"
 jobs:
   generate-website:
     runs-on: ubuntu-22.04
@@ -55,7 +55,13 @@ jobs:
       - name: configure nuxt
         working-directory: ./fe
         run: |
-          echo "NUXT_PUBLIC_BASE_URL={{ env.SSHSTATS_NUXT_PUBLIC_BASE_URL }}" >> .env
+          echo "NUXT_PUBLIC_BASE_URL=${{ env.SSHSTATS_NUXT_PUBLIC_BASE_URL }}" >> .env
+      - name: store nuxt cfg
+        uses: actions/upload-artifact@v4
+        with:
+          name: attempts-data
+          path: |
+            fe/.env
       - name: nuxt generate
         working-directory: ./fe
         run: |
