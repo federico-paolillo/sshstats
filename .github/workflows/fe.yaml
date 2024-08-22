@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 env:
   SSHSTATS_BACKEND: https://monkfish-app-ss3gb.ondigitalocean.app
+  SSHSTATS_NUXT_PUBLIC_BASE_URL: http://localhost:65000
 jobs:
   generate-website:
     runs-on: ubuntu-22.04
@@ -51,6 +52,10 @@ jobs:
         working-directory: ./fe
         run: |
           npm ci
+      - name: configure nuxt
+        working-directory: ./fe
+        run: |
+          echo "NUXT_PUBLIC_BASE_URL={{ env.SSHSTATS_NUXT_PUBLIC_BASE_URL }}" >> .env
       - name: nuxt generate
         working-directory: ./fe
         run: |
