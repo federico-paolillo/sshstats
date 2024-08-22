@@ -12,12 +12,12 @@ jobs:
   generate-website:
     runs-on: ubuntu-22.04
     services:
-      data-serve:
+      data-server:
         image: nginx:1.27.1
         ports:
           - 80:65000
         volumes:
-          - ${{github.workspace}}/fe/data:/usr/share/nginx/html
+          - ${{github.workspace}}/nginx:/usr/share/nginx/html
     steps:
       - name: checkout frontend repo
         uses: actions/checkout@v4
