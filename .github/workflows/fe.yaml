@@ -59,7 +59,7 @@ jobs:
       - name: store nuxt cfg
         uses: actions/upload-artifact@v4
         with:
-          name: attempts-data
+          name: nuxt-cfg
           path: |
             fe/.env
       - name: nuxt generate
