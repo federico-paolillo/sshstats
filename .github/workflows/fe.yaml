@@ -47,6 +47,9 @@ jobs:
         run: |
           mkdir -p ${{github.workspace}}/nginx
           cp -v -R --parents logins ${{github.workspace}}/nginx
+      - name: try attempts data
+        run: |
+          curl -v http://localhost:65000/logins/controlplane-1.json
         working-directory: ./fe/data
       - name: configure nuxt
         run: |
