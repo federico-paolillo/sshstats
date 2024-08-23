@@ -54,9 +54,15 @@ jobs:
         working-directory: ./fe
         run: |
           npm run generate
-      - name: store static site
-        uses: actions/upload-artifact@v4
+      - uses: docker/login-action@v3
         with:
-          name: ssg-data
-          path: |
-            fe/.output/public/
+          registry: registry.digitalocean.com/edu
+          username: ${{ secrets.SSHSTATS_DO_REGISTRY_USERNAME }}
+          password: ${{ secrets.SSHSTATS_DO_REGISTRY_TOKEN }}
+      - name: docker build
+        uses: docker/build-push-action@v6
+        with:
+          file: ./fe/Dockerfile
+          context: ./fe
+          push: true
+          tags: registry.digitalocean.com/edu/sshstats/fe:latest
