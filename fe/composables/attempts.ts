@@ -5,7 +5,7 @@ export async function useLoginAttempts(nodename: string) {
   const { endpoint } = useEndpoints()
 
   const { data, error } = await useFetch<LoginAttempts>(
-    endpoint(`/logins/${nodename}.json`)
+    endpoint(`logins/${nodename}.json`)
   )
 
   return { data, error }
