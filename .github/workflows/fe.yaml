@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 env:
   SSHSTATS_BACKEND: "https://monkfish-app-ss3gb.ondigitalocean.app"
-  SSHSTATS_NUXT_PUBLIC_BASE_URL: "http://localhost:65000"
+  SSHSTATS_NUXT_PUBLIC_BASE_URL: "http://localhost:65000/fe/data"
 jobs:
   generate-website:
     runs-on: ubuntu-22.04
@@ -15,14 +15,10 @@ jobs:
         ports:
           - 65000:80
         volumes:
-          - ${{ github.workspace }}:/usr/share/nginx/html
+          - ${{ github.workspace }}:/usr/share/nginx/html # TODO: You need to bind mount to an existing folder ?
     steps:
       - name: checkout frontend repo
         uses: actions/checkout@v4
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.6.0"
       - name: unpack nodenames
         run: |
           SSHSTATS_NODENAMES=$(jq -r '.[]' fe/assets/nodenames.json | tr '\n' ' ')
@@ -43,17 +39,13 @@ jobs:
           name: attempts-data
           path: |
             fe/data/logins/*.json
-      - name: move attempts data
-        working-directory: ./fe/data
-        run: |
-          mkdir -p ${{github.workspace}}/nginx
-          cp -v -R logins ${{github.workspace}}/nginx/logins
-      - name: try attempts data
-        run: |
-          curl -v http://localhost:65000/fe/data/logins/controlplane-1.json
       - name: configure nuxt
         run: |
           echo "NUXT_PUBLIC_BASE_URL=${{ env.SSHSTATS_NUXT_PUBLIC_BASE_URL }}" >> fe/.env
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.6.0"
       - name: npm ci
         working-directory: ./fe
         run: |
