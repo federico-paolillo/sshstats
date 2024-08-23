@@ -46,7 +46,7 @@ jobs:
       - name: move attempts data
         working-directory: ./fe/data
         run: |
-          mkdir -p ${{github.workspace}}/nginx/logins
+          mkdir -p ${{github.workspace}}/nginx
           cp -v -R logins ${{github.workspace}}/nginx/logins
       - name: try attempts data
         run: |
