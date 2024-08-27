@@ -1,0 +1,4 @@
+---
+honeypot_grafana_cloud_username: "{{ undef() }}"
+honeypot_grafana_cloud_password: "{{ undef() }}"
+honeypot_nodename: "{{ inventory_hostname }}"

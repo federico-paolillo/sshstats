@@ -1,0 +1,2 @@
+ssh_keys/**/*
+!ssh_keys/README.md

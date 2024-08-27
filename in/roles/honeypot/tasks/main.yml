@@ -1,0 +1,3 @@
+---
+- name: Setup Fluent Bit
+  ansible.builtin.import_tasks: fluentbit.yml

@@ -1,0 +1,58 @@
+---
+- name: Add Fluent Bit APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://packages.fluentbit.io/ubuntu $(lsb_release -cs) main"
+    state: present
+    filename: "fluentbit"
+
+- name: Add Fluent Bit GPG key
+  ansible.builtin.apt_key:
+    url: https://packages.fluentbit.io/fluentbit.key
+    state: present
+
+- name: Update APT package cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Fluent Bit
+  ansible.builtin.apt:
+    name: "fluent-bit={{ honeypot_fluentbit_version }}"
+    state: present
+    update_cache: true
+
+- name: Create Fluent Bit env. file
+  ansible.builtin.template:
+    src: fluentbit.env.j2
+    dest: /etc/sysconfig/fluent-bit
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy Fluent Bit main configuration file
+  ansible.builtin.copy:
+    src: fluent-bit.yml
+    dest: /etc/fluent-bit/fluent-bit.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy Fluent Bit parsers configuration file
+  ansible.builtin.copy:
+    src: parsers.conf
+    dest: /etc/fluent-bit/parsers.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Update ExecStart directive in Fluent Bit systemd service file
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/system/fluent-bit.service
+    regexp: "^ExecStart="
+    line: "ExecStart=/opt/fluent-bit/bin/fluent-bit -c /etc/fluent-bit/fluent-bit.yml"
+    state: present
+
+- name: Ensure Fluent Bit service is enabled and started
+  ansible.builtin.systemd:
+    name: fluent-bit
+    enabled: true
+    state: started

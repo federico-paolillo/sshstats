@@ -1,0 +1,7 @@
+---
+- name: Setup every honeypot
+  hosts: honeypots
+  vars_files:
+    - secrets/grafana.yml
+  roles:
+    - honeypot
