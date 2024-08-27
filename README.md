@@ -1,4 +1,4 @@
-# rsyslog to fluentbit to Grafana Loki
+# ssh-stats
 
 Usually, when you have something with SSH on the Internet somebody will try to get access to it and I am curious of which usernames they try to login with.
 
@@ -6,9 +6,9 @@ Usually, when you have something with SSH on the Internet somebody will try to g
 
 I have [rsyslog](https://www.rsyslog.com/) that logs messages of authentication attempts under `/var/log/auth/log`. I would like to sift through those logs for failed authentication attempts and record which usernames where used for those failed attempts.
 
-The goal is to make a (live ?) leaderboard of the most used usernames that failed authentication.
+The goal is to make a leaderboard of the most used usernames that failed authentication in the past 24 hours.
 
-For that, I will feed rsyslog logs to [fluentbit](https://fluentbit.io/) for scraping and transformation. Then fluentbit will forward the now structured logs to [Grafana Loki](https://grafana.com/docs/loki/latest/get-started/labels/) hosted on [Grafana Cloud](https://grafana.com/products/cloud/). From Grafana Cloud I will setup a leaderboard query that I will make available through a very thin backend in [Go](https://github.com/gin-gonic/gin).
+To do that, I will feed rsyslog log files to [fluentbit](https://fluentbit.io/) for scraping and transformation. Then fluentbit will forward the now structured logs to [Grafana Loki](https://grafana.com/docs/loki/latest/get-started/labels/) hosted on [Grafana Cloud](https://grafana.com/products/cloud/). From Grafana Cloud I will setup a leaderboard query that I will make available through a very thin backend in [Go](https://github.com/gin-gonic/gin).
 
 A even thinnier frontend will take care of showing the leaderboard.
 
