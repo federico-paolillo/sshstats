@@ -1,0 +1,32 @@
+---
+- name: Check if rsyslog is installed
+  ansible.builtin.command: dpkg -l | grep rsyslog
+  register: rsyslog_installed
+  changed_when: false
+  ignore_errors: true
+
+- name: Install rsyslog
+  ansible.builtin.apt:
+    name: "rsyslog={{ honeypot_rsyslog_version }}"
+    state: present
+  when: rsyslog_installed.rc == 1
+
+- name: Check if rsyslog default cfg. is available
+  register: rsyslog_conf_stat
+  ansible.builtin.stat:
+    path: /etc/rsyslog.d/50-default.conf
+
+- name: Add rsyslog auth. cfg. if necessary
+  when: not rsyslog_conf_stat.stat.exists
+  ansible.builtin.copy:
+    src: 99_authmessages.conf
+    dest: /etc/rsyslog.d/99_authmessages.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure rsyslog is enabled and started
+  ansible.builtin.systemd:
+    name: rsyslog
+    enabled: true
+    state: started

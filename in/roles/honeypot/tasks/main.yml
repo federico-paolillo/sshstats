@@ -1,3 +1,10 @@
 ---
 - name: Setup Fluent Bit
   ansible.builtin.import_tasks: fluentbit.yml
+- name: Setup rsyslog
+  ansible.builtin.import_tasks: rsyslog.yml
+- name: Reboot
+  ansible.builtin.reboot:
+    pre_reboot_delay: 5
+    reboot_timeout: 300
+    post_reboot_delay: 5
