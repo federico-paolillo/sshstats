@@ -1,0 +1,26 @@
+name: playbooks
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - in/
+jobs:
+  build:
+    name: Ansible Lint
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Emit Ansible Vault password
+        run: |
+          echo "${{ secrets.SSHSTATS_ANSIBLE_VAULT_KEY }}" >> ${{github.workspace}}/ansible-vault-pwd
+      - name: Lint
+        env:
+          ANSIBLE_VAULT_PASSWORD_FILE: ${{github.workspace}}/ansible-vault-pwd
+        uses: ansible/ansible-lint@v24.7.0
+        with:
+          working_directory: in/
+      - name: Delete Ansible Vault password
+        if: always()
+        run: |
+          rm -f ${{github.workspace}}/ansible-vault-pwd

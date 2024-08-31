@@ -1,6 +1,8 @@
 ---
 - name: Check if rsyslog is installed
-  ansible.builtin.command: dpkg -l | grep rsyslog
+  ansible.builtin.shell:
+    cmd: |
+      dpkg -l | grep rsyslog
   register: rsyslog_installed
   changed_when: false
   ignore_errors: true

@@ -1,3 +1,7 @@
+env:
+  sshstats_grafana_cloud_user: {{ honeypot_grafana_cloud_username }}
+  sshstats_grafana_cloud_passwd: {{ honeypot_grafana_cloud_password }}
+  sshstats_nodename: {{ honeypot_nodename }}
 service:
   parsers_file: /etc/fluent-bit/parsers.conf
   log_level: debug
@@ -18,8 +22,8 @@ pipeline:
       match: authn.ssh
       host: logs-prod-012.grafana.net
       port: 443
-      http_user: ${SSHSTATS_GRAFANACLOUD_USER}
-      http_passwd: ${SSHSTATS_GRAFANACLOUD_PASSWD}
-      labels: job=ssh-stats,node=${SSHSTATS_NODENAME}
+      http_user: ${sshstats_grafana_cloud_user}
+      http_passwd: ${sshstats_grafana_cloud_passwd}
+      labels: job=ssh-stats,node=${sshstats_nodename}
       tls: on
       tls.verify: on

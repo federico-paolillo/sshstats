@@ -1,13 +1,33 @@
 ---
-- name: Add Fluent Bit APT repository
-  ansible.builtin.apt_repository:
-    repo: "deb https://packages.fluentbit.io/ubuntu $(lsb_release -cs) main"
-    state: present
-    filename: "fluentbit"
+- name: Update APT package cache
+  ansible.builtin.apt:
+    update_cache: true
 
-- name: Add Fluent Bit GPG key
-  ansible.builtin.apt_key:
+- name: Install Fluentbit prerequisites
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+    state: present
+
+- name: Download Fluentbit repo. key
+  ansible.builtin.get_url:
     url: https://packages.fluentbit.io/fluentbit.key
+    dest: /tmp/fluentbit.key
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Add Fluentbit APT repository key
+  ansible.builtin.shell:
+    cmd: |
+      gpg --yes --dearmor --output /usr/share/keyrings/fluentbit-keyring.gpg /tmp/fluentbit.key
+  changed_when: true
+
+- name: Add Fluentbit APT repository
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/fluentbit-keyring.gpg] https://packages.fluentbit.io/ubuntu/jammy jammy main
+    filename: fluent-bit
     state: present
 
 - name: Update APT package cache
@@ -20,17 +40,9 @@
     state: present
     update_cache: true
 
-- name: Create Fluent Bit env. file
+- name: Create Fluent Bit main configuration file
   ansible.builtin.template:
-    src: fluentbit.env.j2
-    dest: /etc/sysconfig/fluent-bit
-    owner: root
-    group: root
-    mode: "0644"
-
-- name: Copy Fluent Bit main configuration file
-  ansible.builtin.copy:
-    src: fluent-bit.yml
+    src: fluent-bit.yml.j2
     dest: /etc/fluent-bit/fluent-bit.yml
     owner: root
     group: root
@@ -44,9 +56,17 @@
     group: root
     mode: "0644"
 
+- name: Create Fluentbit tail database folder
+  ansible.builtin.file:
+    path: /var/fluentbit/
+    state: directory
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Update ExecStart directive in Fluent Bit systemd service file
   ansible.builtin.lineinfile:
-    path: /etc/systemd/system/fluent-bit.service
+    path: /lib/systemd/system/fluent-bit.service
     regexp: "^ExecStart="
     line: "ExecStart=/opt/fluent-bit/bin/fluent-bit -c /etc/fluent-bit/fluent-bit.yml"
     state: present
