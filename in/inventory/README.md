@@ -1,3 +1,3 @@
 # Ansible inventories
 
-Add your Ansible inventories here
+Add your Ansible inventory files here
