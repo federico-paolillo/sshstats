@@ -20,7 +20,7 @@ jobs:
           ANSIBLE_VAULT_PASSWORD_FILE: ${{ github.workspace }}/ansible-vault-pwd
         uses: ansible/ansible-lint@v24.7.0
         with:
-          working_directory: ${{ github.workspace }}/in
+          args: in/all.yml
       - name: Delete Ansible Vault password
         if: always()
         run: |
