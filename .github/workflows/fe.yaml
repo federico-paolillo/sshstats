@@ -26,10 +26,12 @@ jobs:
         run: |
           for nodename in $SSHSTATS_NODENAMES; do
             echo "Downloading $nodename.json"
+            slee .5
             curl -v                                                                             \
               -H "${{ secrets.SSHSTATS_API_AUTH_KEY }}: ${{ secrets.SSHSTATS_API_AUTH_VALUE }}" \
               --output-dir fe/data/logins                                                       \
               -o "$nodename.json"                                                               \
+              --fail-with-body                                                                  \
               "${{ env.SSHSTATS_BACKEND }}/stats/$nodename"
           done
       - name: store attempts data
