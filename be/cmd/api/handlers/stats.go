@@ -11,6 +11,7 @@ import (
 
 var ammissibleNodenames = []string{
 	"controlplane-1",
+	"worker-1",
 }
 
 func getTop15LoginAttempts(app *app.App) gin.HandlerFunc {
