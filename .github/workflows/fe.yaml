@@ -1,7 +1,8 @@
 name: ssg
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "30 4 * * *"
+    - cron: "0 4 * * *"
 env:
   SSHSTATS_BACKEND: "https://monkfish-app-ss3gb.ondigitalocean.app"
   SSHSTATS_NUXT_PUBLIC_BASE_URL: "http://localhost:65000/fe/data"
