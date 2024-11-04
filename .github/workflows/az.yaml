@@ -18,12 +18,6 @@ jobs:
         volumes:
           - ${{ github.workspace }}:/usr/share/nginx/html # TODO: You need to bind mount to an existing folder ?
     steps:
-      - name: Azure CLI Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: checkout frontend repo
         uses: actions/checkout@v4
       - name: unpack nodenames
