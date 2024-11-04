@@ -63,14 +63,8 @@ jobs:
         working-directory: ./fe
         run: |
           npm run generate
-      - name: az login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: az deploy
         run: |
-          az staticwebapp upload                            \
+          az staticwebapp update                            \
             --name ${{ secrets.AZURE_STATIC_WEB_APP_NAME }} \
             --source ./fe/.output/public
