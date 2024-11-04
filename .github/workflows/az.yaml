@@ -64,7 +64,10 @@ jobs:
         run: |
           npm run generate
       - name: az deploy
-        run: |
-          az staticwebapp update                            \
-            --name ${{ secrets.AZURE_STATIC_WEB_APP_NAME }} \
-            --source ./fe/.output/public
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          skip_app_build: true
+          skip_api_build: true
+          action: "upload"
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_DEPLOYMENT_TOKEN }}
+          app_location: ./fe/.output/public
