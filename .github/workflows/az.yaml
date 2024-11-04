@@ -1,13 +1,22 @@
-name: playbooks
+name: az-deploy
 on:
   workflow_dispatch:
 permissions:
   id-token: write
   contents: read
+env:
+  SSHSTATS_BACKEND: "https://monkfish-app-ss3gb.ondigitalocean.app"
+  SSHSTATS_NUXT_PUBLIC_BASE_URL: "http://localhost:65000/fe/data"
 jobs:
-  build:
-    name: Azure
+  generate-website:
     runs-on: ubuntu-22.04
+    services:
+      data-server:
+        image: nginx:1.27.1
+        ports:
+          - 65000:80
+        volumes:
+          - ${{ github.workspace }}:/usr/share/nginx/html # TODO: You need to bind mount to an existing folder ?
     steps:
       - name: Azure CLI Login
         uses: azure/login@v2
@@ -15,9 +24,53 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: Azure CLI script
-        uses: azure/cli@v2
+      - name: checkout frontend repo
+        uses: actions/checkout@v4
+      - name: unpack nodenames
+        run: |
+          SSHSTATS_NODENAMES=$(jq -r '.[]' fe/assets/nodenames.json | tr '\n' ' ')
+          echo "SSHSTATS_NODENAMES=$SSHSTATS_NODENAMES" >> "$GITHUB_ENV"
+      - name: download attempts data
+        run: |
+          for nodename in $SSHSTATS_NODENAMES; do
+            echo "Downloading $nodename.json"
+            sleep .5
+            curl -v                                                                             \
+              -H "${{ secrets.SSHSTATS_API_AUTH_KEY }}: ${{ secrets.SSHSTATS_API_AUTH_VALUE }}" \
+              --output-dir fe/data/logins                                                       \
+              -o "$nodename.json"                                                               \
+              --fail-with-body                                                                  \
+              "${{ env.SSHSTATS_BACKEND }}/stats/$nodename"
+          done
+      - name: store attempts data
+        uses: actions/upload-artifact@v4
         with:
-          azcliversion: latest
-          inlineScript: |
-            az account show
+          name: attempts-data
+          path: |
+            fe/data/logins/*.json
+      - name: configure nuxt
+        run: |
+          echo "NUXT_PUBLIC_BASE_URL=${{ env.SSHSTATS_NUXT_PUBLIC_BASE_URL }}" >> fe/.env
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.6.0"
+      - name: npm ci
+        working-directory: ./fe
+        run: |
+          npm ci
+      - name: nuxt generate
+        working-directory: ./fe
+        run: |
+          npm run generate
+      - name: az login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: az deploy
+        run: |
+          az staticwebapp upload                            \
+            --name ${{ secrets.AZURE_STATIC_WEB_APP_NAME }} \
+            --source ./fe/.output/public
