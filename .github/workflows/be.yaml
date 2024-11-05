@@ -12,14 +12,13 @@ jobs:
         uses: actions/setup-go@v5.1.0
         with:
           architecture: x64
-          go-version: "1.22.1"
-          cache-dependency-path: be/go.sum
-          go-version-file: be/go.mod
+          cache-dependency-path: ./be/go.sum
+          go-version-file: ./be/go.mod
       - name: checkout backend repo
         uses: actions/checkout@v4.2.2
       - name: go build
         run: |
-          go build -v -C be/ -o ../az/handler ./cmd/api
+          go build -C ./be/ -o ../az/handler -v ./cmd/api
       - name: az deploy
         uses: Azure/functions-action@v1.5.2
         with:
