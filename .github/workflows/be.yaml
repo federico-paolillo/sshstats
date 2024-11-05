@@ -12,8 +12,8 @@ jobs:
         uses: actions/setup-go@v5.1.0
         with:
           architecture: x64
-          cache-dependency-path: be/go.sum
-          go-version-file: be/go.mod
+          cache-dependency-path: ${{ github.workspace }}/be/go.sum
+          go-version-file: ${{ github.workspace }}/be/go.mod
       - name: checkout backend repo
         uses: actions/checkout@v4.2.2
       - name: go build
