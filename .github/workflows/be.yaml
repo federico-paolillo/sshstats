@@ -1,6 +1,12 @@
 name: az-fn-deploy
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "be/**"
+      - "az/**"
 permissions:
   id-token: write
   contents: read
@@ -18,7 +24,7 @@ jobs:
           go-version-file: ${{ github.workspace }}/be/go.mod
       - name: go build
         env:
-          GOOS: linux 
+          GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
         run: |
