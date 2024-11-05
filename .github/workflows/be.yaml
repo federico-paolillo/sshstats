@@ -17,6 +17,10 @@ jobs:
           cache-dependency-path: ${{ github.workspace }}/be/go.sum
           go-version-file: ${{ github.workspace }}/be/go.mod
       - name: go build
+        env:
+          GOOS: linux 
+          GOARCH: amd64
+          CGO_ENABLED: 0
         run: |
           go build -C be/ -o ../az/handler -v ./cmd/api
       - name: az deploy
