@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -116,6 +117,17 @@ func run() StatusCode {
 			HeaderKey:   v.GetString("auth.headerkey"),
 			HeaderValue: v.GetString("auth.headervalue"),
 		},
+	}
+
+	azFunctionsPort := os.Getenv("FUNCTIONS_CUSTOMHANDLER_PORT")
+
+	if azFunctionsPort != "" {
+		l.Printf(
+			"we are running as az function. port is %s",
+			azFunctionsPort,
+		)
+
+		cfg.Server.Address = net.JoinHostPort("", azFunctionsPort)
 	}
 
 	app := app.NewApp(l, cfg)
