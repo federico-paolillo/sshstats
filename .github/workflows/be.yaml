@@ -12,16 +12,16 @@ jobs:
         uses: actions/setup-go@v5.1.0
         with:
           architecture: x64
-          cache-dependency-path: ./be/go.sum
-          go-version-file: ./be/go.mod
+          cache-dependency-path: be/go.sum
+          go-version-file: be/go.mod
       - name: checkout backend repo
         uses: actions/checkout@v4.2.2
       - name: go build
         run: |
-          go build -C ./be/ -o ../az/handler -v ./cmd/api
+          go build -C be/ -o ../az/handler -v ./cmd/api
       - name: az deploy
         uses: Azure/functions-action@v1.5.2
         with:
           app-name: sshstats-be-fn
           publish-profile: ${{ secrets.AZURE_FN_PUBLISH_PROFILE }}
-          package: ./az/
+          package: az/
