@@ -7,7 +7,7 @@ permissions:
   id-token: write
   contents: read
 env:
-  SSHSTATS_BACKEND: "https://monkfish-app-ss3gb.ondigitalocean.app"
+  SSHSTATS_BACKEND: "https://sshstats-be-fn-htd3hthvbzeqbcfe.westeurope-01.azurewebsites.net/api/query-loki"
   SSHSTATS_NUXT_PUBLIC_BASE_URL: "http://localhost:65000/fe/data"
 jobs:
   generate-website:
