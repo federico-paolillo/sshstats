@@ -1,4 +1,4 @@
-name: az-deploy
+name: az-swa-deploy
 on:
   workflow_dispatch:
   schedule:
