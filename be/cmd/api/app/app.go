@@ -3,7 +3,6 @@ package app
 import (
 	"log"
 
-	"github.com/federico-paolillo/ssh-attempts/internal/caching"
 	"github.com/federico-paolillo/ssh-attempts/internal/loki"
 	"github.com/federico-paolillo/ssh-attempts/pkg/stats"
 )
@@ -29,17 +28,14 @@ func NewApp(
 }
 
 func initStatProvider(app *App) {
-	app.Provider = caching.NewProvider(
+	app.Provider = loki.NewProvider(
 		app.Log,
-		loki.NewProvider(
-			app.Log,
-			loki.NewLogcliConnector(
-				loki.NewClient(&loki.Config{
-					User:     app.Cfg.Loki.Username,
-					Password: app.Cfg.Loki.Password,
-					Endpoint: app.Cfg.Loki.Endpoint,
-				}),
-			),
+		loki.NewLogcliConnector(
+			loki.NewClient(&loki.Config{
+				User:     app.Cfg.Loki.Username,
+				Password: app.Cfg.Loki.Password,
+				Endpoint: app.Cfg.Loki.Endpoint,
+			}),
 		),
 	)
 }

@@ -5,7 +5,6 @@ go 1.22.1
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/grafana/loki/v3 v3.1.0
-	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/common v0.49.1-0.20240306132007-4199f18c3e92
 	github.com/sherifabdlnaby/configuro v0.0.3
 )

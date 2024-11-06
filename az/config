@@ -1,8 +1,0 @@
-SERVER.ADDRESS=":65535"
-
-AUTH.HEADERKEY="x-example-auth-key"
-AUTH.HEADERVALUE="example-auth-key-value"
-
-LOKI.ENDPOINT=""
-LOKI.USERNAME=""
-LOKI.PASSWORD=""
