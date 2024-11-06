@@ -4,6 +4,11 @@
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[4.*, 5.0.0)"
   },
+  "extensions": {
+    "http": {
+      "routePrefix": ""
+    }
+  },
   "customHandler": {
     "enableForwardingHttpRequest": true,
     "description": {

@@ -5,6 +5,7 @@
       "authLevel": "anonymous",
       "direction": "in",
       "name": "req",
+      "route": "stats/{nodename}",
       "methods": [
         "get"
       ]
