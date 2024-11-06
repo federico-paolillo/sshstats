@@ -4,6 +4,9 @@ ARG GO_VERSION=1.22.1
 
 FROM golang:${GO_VERSION} AS build
 
+ENV CGO_ENABLED=0
+ENV GOARCH=amd64
+
 WORKDIR /src
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
@@ -15,7 +18,7 @@ ARG TARGETARCH
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 GOARCH=amd64 go build -o /bin/server ./cmd/api
+    go build -o /bin/server ./cmd/api
 
 FROM alpine:latest AS final
 
@@ -41,10 +44,6 @@ RUN mkdir /etc/sshstats
 
 USER appuser
 
-# An empty config file is required to keep Viper happy
-# See https://github.com/spf13/viper/issues/188#issuecomment-413368673
-COPY config.example /etc/sshstats/config
-
 COPY --from=build /bin/server /bin/
 
 EXPOSE 65535
@@ -52,6 +51,7 @@ EXPOSE 65535
 ENV GIN_MODE=release
 
 ENV SSHSTATS_SERVER_ADDRESS=:65535
+ENV SSHSTATS_CONFIG_DIR=/etc/sshstats
 
 ENV SSHSTATS_AUTH_HEADERKEY=
 ENV SSHSTATS_AUTH_HEADERVALUE=

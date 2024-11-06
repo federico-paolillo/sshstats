@@ -2,18 +2,18 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/app"
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/handlers"
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/middlewares"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
+	"github.com/sherifabdlnaby/configuro"
 )
 
 type StatusCode = int
@@ -26,47 +26,6 @@ var (
 func main() {
 	executionResult := run()
 	os.Exit(executionResult)
-}
-
-func initViper() (*viper.Viper, error) {
-	v := viper.New()
-
-	v.SetConfigName("config")
-	v.SetConfigType("dotenv")
-
-	v.AddConfigPath(".")
-	v.AddConfigPath("/etc/sshstats")
-
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.SetEnvPrefix("SSHSTATS")
-	v.AllowEmptyEnv(false)
-	v.AutomaticEnv()
-
-	v.SetDefault("server.address", ":65535")
-
-	v.SetDefault("auth.headerkey", "")
-	v.SetDefault("auth.headervalue", "")
-
-	v.SetDefault("loki.username", "")
-	v.SetDefault("loki.password", "")
-	v.SetDefault("loki.endpoint", "")
-
-	v.BindEnv("server.address")
-
-	v.BindEnv("auth.headerkey")
-	v.BindEnv("auth.headervalue")
-
-	v.BindEnv("loki.username")
-	v.BindEnv("loki.password")
-	v.BindEnv("loki.endpoint")
-
-	err := v.ReadInConfig()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return v, nil
 }
 
 func initServer(app *app.App) *http.Server {
@@ -90,39 +49,36 @@ func initServer(app *app.App) *http.Server {
 	return s
 }
 
-func run() StatusCode {
-	l := log.Default()
+func initConfig(logger *log.Logger) (app.Config, error) {
+	var cfg app.Config
 
-	v, err := initViper()
+	c, err := configuro.NewConfig(
+		configuro.WithoutExpandEnvVars(),
+		configuro.WithLoadFromEnvVars("SSHSTATS"),
+		configuro.WithLoadFromConfigFile("config.yml", false),
+		configuro.WithEnvConfigPathOverload("SSHSTATS_CONFIG_DIR"),
+	)
 
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			l.Printf("main: no config file was found. proceeding anyway")
-		} else {
-			l.Printf("main: could not read configuration. %v", err)
-			return NotOk
-		}
+		return cfg, fmt.Errorf(
+			"main: could not setup configuro. %v",
+			err,
+		)
 	}
 
-	cfg := &app.Config{
-		Loki: app.LokiSettings{
-			Endpoint: v.GetString("loki.endpoint"),
-			Username: v.GetString("loki.username"),
-			Password: v.GetString("loki.password"),
-		},
-		Server: app.ServerSettings{
-			Address: v.GetString("server.address"),
-		},
-		Auth: app.AuthSettings{
-			HeaderKey:   v.GetString("auth.headerkey"),
-			HeaderValue: v.GetString("auth.headervalue"),
-		},
+	err = c.Load(&cfg)
+
+	if err != nil {
+		return cfg, fmt.Errorf(
+			"main: could not load configuration. %v",
+			err,
+		)
 	}
 
 	azFunctionsPort := os.Getenv("FUNCTIONS_CUSTOMHANDLER_PORT")
 
 	if azFunctionsPort != "" {
-		l.Printf(
+		logger.Printf(
 			"we are running as az function. port is %s",
 			azFunctionsPort,
 		)
@@ -130,7 +86,24 @@ func run() StatusCode {
 		cfg.Server.Address = net.JoinHostPort("", azFunctionsPort)
 	}
 
-	app := app.NewApp(l, cfg)
+	return cfg, nil
+}
+
+func run() StatusCode {
+	l := log.Default()
+
+	cfg, err := initConfig(l)
+
+	if err != nil {
+		l.Fatalf(
+			"main: failed to init config. %v",
+			err,
+		)
+
+		return NotOk
+	}
+
+	app := app.NewApp(l, &cfg)
 
 	l.Printf("main: setup complete")
 
