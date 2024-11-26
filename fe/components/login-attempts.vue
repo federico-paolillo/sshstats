@@ -24,6 +24,7 @@ const totalAttempts = computed(
       <span>Login attempts on node</span>
       <span>&nbsp;</span>
       <b>{{ nodename }}</b>
+      <span v-if="data">Data pulled at: {{ data.generatedAt }}</span>
     </caption>
     <thead>
       <tr>

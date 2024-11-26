@@ -1,6 +1,10 @@
 package dtos
 
-import "github.com/federico-paolillo/ssh-attempts/pkg/stats"
+import (
+	"time"
+
+	"github.com/federico-paolillo/ssh-attempts/pkg/stats"
+)
 
 type LoginAttempt struct {
 	Username string `json:"username"`
@@ -8,10 +12,14 @@ type LoginAttempt struct {
 }
 
 type LoginAttempts struct {
-	Attempts []*LoginAttempt `json:"attempts"`
+	Attempts    []*LoginAttempt `json:"attempts"`
+	GeneratedAt time.Time       `json:"generatedAt"`
 }
 
-func MapAttemptsToDto(attemptsToMap []*stats.LoginAttempt) *LoginAttempts {
+func MapAttemptsToDto(
+	attemptsToMap []*stats.LoginAttempt,
+	now time.Time,
+) *LoginAttempts {
 	attemptsMapped := make([]*LoginAttempt, 0, len(attemptsToMap))
 
 	for _, attemptToMap := range attemptsToMap {
@@ -24,6 +32,7 @@ func MapAttemptsToDto(attemptsToMap []*stats.LoginAttempt) *LoginAttempts {
 	}
 
 	return &LoginAttempts{
-		Attempts: attemptsMapped,
+		Attempts:    attemptsMapped,
+		GeneratedAt: now,
 	}
 }

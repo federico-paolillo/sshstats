@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/app"
 	"github.com/federico-paolillo/ssh-attempts/cmd/api/dtos"
@@ -30,7 +31,10 @@ func getTop15LoginAttempts(app *app.App) gin.HandlerFunc {
 			return
 		}
 
-		attemptsDto := dtos.MapAttemptsToDto(attempts)
+		attemptsDto := dtos.MapAttemptsToDto(
+			attempts,
+			time.Now(),
+		)
 
 		ctx.JSON(http.StatusOK, attemptsDto)
 	}
