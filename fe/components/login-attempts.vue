@@ -24,7 +24,6 @@ const totalAttempts = computed(
       <span>Login attempts on node</span>
       <span>&nbsp;</span>
       <b>{{ nodename }}</b>
-      <span v-if="data">Data pulled at: {{ data.generatedAt }}</span>
     </caption>
     <thead>
       <tr>
@@ -51,6 +50,11 @@ const totalAttempts = computed(
       <tr>
         <th scope="row" class="header-cell">Total</th>
         <td colspan="2" class="number-cell">{{ totalAttempts }}</td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <span v-if="data">Data pulled at: {{ data.generatedAt }}</span>
+        </td>
       </tr>
     </tfoot>
   </table>
