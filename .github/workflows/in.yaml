@@ -26,6 +26,7 @@ jobs:
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: ${{ github.workspace }}/ansible-vault-pwd
           ANSIBLE_PRIVATE_KEY_FILE: ${{ github.workspace}}/ansible-ssh-key
+          ANSIBLE_SSH_EXTRA_ARGS: '-o "StrictHostKeyChecking no"'
         run: |
           ansible-playbook in/all.yml -i in/inventory/honeypots.yml
       - name: Delete Ansible secrets
