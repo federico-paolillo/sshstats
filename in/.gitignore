@@ -1,5 +1,2 @@
-ssh_keys/**/*
-!ssh_keys/README.md
-
-inventory/**/*
-!inventory/README.md
+keys/**/*
+!keys/README.md

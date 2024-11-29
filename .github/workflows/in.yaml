@@ -7,21 +7,29 @@ on:
     paths:
       - "in/**"
 jobs:
-  build:
-    name: Ansible Lint
+  ansible:
+    name: Run Ansible
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Emit Ansible Vault password
+      - name: Emit Ansible secrets
         run: |
           echo "${{ secrets.SSHSTATS_ANSIBLE_VAULT_KEY }}" >> ${{github.workspace}}/ansible-vault-pwd
+          echo "${{ secrets.SSHSTATS_ANSIBLE_SSH_KEY }}" >> ${{github.workspace}}/ansible-ssh-key
       - name: Lint
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: ${{ github.workspace }}/ansible-vault-pwd
         uses: ansible/ansible-lint@v24.7.0
         with:
           args: in/all.yml
-      - name: Delete Ansible Vault password
+      - name: Run Playbook
+        env:
+          ANSIBLE_VAULT_PASSWORD_FILE: ${{ github.workspace }}/ansible-vault-pwd
+          ANSIBLE_PRIVATE_KEY_FILE: ${{ github.workspace}}/ansible-ssh-key
+        run: |
+          ansible-playbook in/all.yml -i in/inventory/honeypots.yml
+      - name: Delete Ansible secrets
         if: always()
         run: |
           rm -f ${{github.workspace}}/ansible-vault-pwd
+          rm -f ${{github.workspace}}/ansible-ssh-key

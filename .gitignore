@@ -1,0 +1,53 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# User-specific files
+*.log
+*.lock
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Temporary files
+*.cache
+*.temp
+*.pid
+*.out
+
+# Compiled files
+*.class
+*.pyc
+*.pyo
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+
+# Packaging and build directories
+node_modules/
+dist/
+build/
+out/
+
+# Dependency directories
+vendor/
+.env
+
+# Version control directories
+.svn/
+.hg/
+.idea/
+.vscode/
+*.iml
+
+# Logs and databases
+logs/
+*.sql
+*.sqlite
+
+# Customizable exclusion patterns
+*.generated.*
+*.backup.*

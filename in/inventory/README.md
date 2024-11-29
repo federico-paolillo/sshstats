@@ -1,3 +1,3 @@
 # Ansible inventories
 
-Add your Ansible inventory files here
+Add your *encrypted* Ansible inventory files here
