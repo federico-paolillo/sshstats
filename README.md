@@ -14,21 +14,14 @@ A even thinnier frontend will take care of showing the leaderboard.
 
 ## What's inside
 
-- rsyslog configuration for logging authentication attempts
-- fluentbit configuration for scraping, transformaing and sending rsyslog
+- [Terraform](https://www.terraform.io/) files to boostrap the infrastructure on Azure (no VPS nor Grafana Cloud)
+- [Ansible](https://www.ansible.com/) playbook to configure SSH hosts to produce logs
+- Thin backend in [Go](https://go.dev/) built with [Gin](https://gin-gonic.com/) that consumes logs from Grafana Cloud
+- Static Web Site made in [Nuxt](https://nuxt.com/) that will consume and show statistics
+- GitHub Actions workflows to build and deploy the backend, frontend and configure VPSes
+- Azure Function definition for the Go backend
 
-**Wait, why no Grafana Loki configuration ?**
-Because I am using Grafana Cloud. I have absolutely no willpower to configure Grafana Loki
-
-## Requirements
-
-I am using:
-
-- rsyslog v8.2112.0 (aka 2021.12)
-- fluentbit v3.1.4
-- Grafana Cloud
-
-## How it works
+## Technicalities
 
 ### rsyslog
 
@@ -42,14 +35,6 @@ I have installed fluentbit from the official APT package, [as described in the o
 
 I have change the unit file `ExecStart`, under `/lib/systemd/system/fluent-bit.service` to use my own YAML configuration file by specifying `-c /etc/fluent-bit/fluent-bit.yml`
 
-fluentbit will run as `root` as indicated by:
-
-```
-$ sudo systemctl show -pUser,UID fluent-bit
-UID=[not set]
-User=
-```
-
 You can find in this repository my fluentbit configuration under `config/fluentbit`. I have chosen to use the YAML configuration format because I like it better.
 
 `fluent-bit.yml` file describes a pipeline that tails `/var/log/auth.log` file and parses it using a custom parser. After parsing all entries that do not have an `user` attribute are discarded. Remaining entries are then forwarded to Loki hosted on Grafana Cloud. I am using the [built-in fluentbit Loki](https://docs.fluentbit.io/manual/pipeline/outputs/loki) plugin that has been configured according to [the official documentation](https://docs.fluentbit.io/manual/pipeline/outputs/loki#fluent-bit--grafana-cloud). It is important for Grafana Cloud [to activate TLS](https://docs.fluentbit.io/manual/administration/transport-security#example-enable-tls-on-http-output).
@@ -62,7 +47,7 @@ The parser will consume log entries that match lines like: `Aug  3 13:57:33 <ser
 
 Both `fluent-bit.yml` and `parsers.conf` have to be placed under `/etc/fluent-bit` then fluentbit service unit file `ExecStart` must be changed to consume the configuration appropriately by specifying `-c /etc/fluent-bit/fluent-bit.yml`.
 
-## Loki
+### Loki
 
 Once you are able to get records into Loki you should find entries such as:
 
@@ -82,3 +67,23 @@ topk(15,
   )
 )
 ```
+
+### Nuxt
+
+In order to build the Nuxt application as a static web site you need to have a webserver running in background serving statistics data because the actual HTTP fetches will be done at build time. To do that you can use `npm run data` to spin-up an HTTP server that will serve data from `fe/data` folder.
+
+Something similar to the above is done when running in GitHub actions. Before generating and uploading to Azure the static web site, statistics for all servers is downloaded as JSON files. All the files are then bind mounted into an `nginx` Docker container provisioned using the `services:` stanza from GitHub Actions. During static web site generation all HTTP calls for the data will be redirected to that `nginx` server. Refer to the `fe.yaml` GitHub Action workflow to know more.
+
+It is important to keep the `nodenames.json` file up-to-date with the nodenames that the Go backed accepts.
+
+### Lefthook
+
+[Lefthook](https://github.com/evilmartians/lefthook) is used as a task runner to avoid typing every command each time. Refer to Lefthook documentation to know more
+
+### Terraform
+
+Terraform is run manually, as the underlying infrastructure does not change very often. There is an associated Terraform Cloud project with all secrets, state and configuration associated.
+
+### Azure Functions
+
+The `az/` folder contains a barebone Azure Function definition using a Custom Runtime (because the Go application is deployed as a statically-linked binary executable). This folder is used when deploying the backend to Azure. Refer to the `be.yaml` GitHub Action file to know more.

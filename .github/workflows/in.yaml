@@ -26,6 +26,8 @@ jobs:
         with:
           args: in/all.yml
       - name: Run Playbook
+        # The "StrictHostKeyChecking no" is a workaround to avoid storing the host keys on the GitHub runner
+        # This will prevent error messages such as "Host key verification failed"
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: ${{ github.workspace }}/ansible-vault-pwd
           ANSIBLE_PRIVATE_KEY_FILE: ${{ github.workspace}}/ansible-ssh-key
