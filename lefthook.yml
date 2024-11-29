@@ -1,0 +1,30 @@
+lint:
+  parallel: true
+  commands:
+    lint-ansible:
+      root: in/
+      env:
+        ANSIBLE_VAULT_PASSWORD_FILE: keys/vault
+      run: ansible-lint all.yml
+    lint-go:
+      root: be/
+      run: go vet ./...
+
+build:
+  parallel: true
+  commands:
+    build-fe:
+      root: fe/
+      run: npm run build
+    build-be:
+      root: be/
+      run: go build ./cmd/api
+
+ansible:
+  commands:
+    ansible-playbook:
+      root: in/
+      env:
+        ANSIBLE_VAULT_PASSWORD_FILE: keys/vault
+        ANSIBLE_PRIVATE_KEY_FILE: keys/ssh
+      run: ansible-playbook all.yml -i inventory/honeypots.yml
