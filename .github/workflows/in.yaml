@@ -13,6 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Emit Ansible secrets
+        # If SSH keys permissions are too open you get: "It is recommended that your private key files are NOT accessible by others. This private key will be ignored."
+        # That chmod makes the key rw by the current user
         run: |
           echo "${{ secrets.SSHSTATS_ANSIBLE_VAULT_KEY }}" >> ${{github.workspace}}/ansible-vault-pwd
           echo "${{ secrets.SSHSTATS_ANSIBLE_SSH_KEY }}" >> ${{github.workspace}}/ansible-ssh-key
