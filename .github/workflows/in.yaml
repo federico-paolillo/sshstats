@@ -16,6 +16,8 @@ jobs:
         run: |
           echo "${{ secrets.SSHSTATS_ANSIBLE_VAULT_KEY }}" >> ${{github.workspace}}/ansible-vault-pwd
           echo "${{ secrets.SSHSTATS_ANSIBLE_SSH_KEY }}" >> ${{github.workspace}}/ansible-ssh-key
+          chmod u=rw ${{github.workspace}}/ansible-ssh-key
+          chmod u=rw ${{github.workspace}}/ansible-vault-pwd
       - name: Lint
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: ${{ github.workspace }}/ansible-vault-pwd
