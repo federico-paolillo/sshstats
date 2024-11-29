@@ -24,6 +24,7 @@ ansible:
   commands:
     ansible-playbook:
       root: in/
+      follow: true
       env:
         ANSIBLE_VAULT_PASSWORD_FILE: keys/vault
         ANSIBLE_PRIVATE_KEY_FILE: keys/ssh
